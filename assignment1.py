@@ -59,12 +59,13 @@ def main():
     stopwords = createStopwordsSet(stopwords_filename)
 
     checkDirExist(transcripts_dir)
+    files = 0
     words_before_processing = 0
     words_after_processing = 0
 
     for filename in os.listdir(transcripts_dir):
+        files += 1
         filename = transcripts_dir + filename
-
         with open(filename) as f:
             for line in f:
                 words = line.split()
@@ -87,6 +88,7 @@ def main():
     print "The number of unique words in the database: " + str(len(word_dict))
     only_occur_once = findOnlyOccurOnceWord()
     print "The number of words that occur only once in the database " + str(only_occur_once)
+    print "The average number of word tokens per document: " + str(words_before_processing / files)
 
 if __name__ == '__main__':
     main()
