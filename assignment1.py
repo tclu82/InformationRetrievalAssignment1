@@ -17,6 +17,8 @@ import os
 import unicodedata
 from sys import maxsize
 import math
+import re
+import csv
 
 # constants and gloabl variable
 stopwords_filename = "stopwords.txt"
@@ -64,25 +66,6 @@ def createStopwordsSet(filename):
     return hash_set
 
 """
-Check if the input term needs to be process
-"""
-def needProcess(term):
-    for char in check_set:
-        if term.find(char) >= 0:
-            return True
-    return False
-
-"""
-Process the input term to be meaningful
-"""
-def afterProcessing(term):
-    index = maxsize
-    for char in check_set:
-        if term.find(char) >= 0:
-            index = min(index, term.find(char))
-    return term[:index].lower()
-
-"""
 Find out only 1 occurance term
 """
 def findOnlyOccurOnceWord():
@@ -112,17 +95,32 @@ def buildDictionary(dir, stopwords):
                 for word in words:
                     global words_before_processing
                     words_before_processing += 1
+                    global words_after_processing
+                    if word == "--":
+                        continue
+                    word = word.lower()
+                    
                     if word not in stopwords:
-                        if needProcess(word):
-                            word = afterProcessing(word)
-                            if word not in stopwords and word != "":
-                                global words_after_processing
-                                words_after_processing += 1
-                                if term_dict.get(word) == None:
-                                    term_dict[word] = TermData(word, 0, 0)
-                                term_data = term_dict[word]
-                                term_data.tf += 1
-                                term_set.add(word)
+                        # Use regex to check if word contains [. , ']
+                        match = re.match("\w+[.,\']", word)
+                        if match:
+                            temp_list = re.split("[.,\']", word)
+                            for temp in temp_list:
+                                if temp not in stopwords and temp != "":
+                                    words_after_processing += 1
+                                    if term_dict.get(temp) == None:
+                                        term_dict[temp] = TermData(temp, 0, 0)
+                                        term_data = term_dict[temp]
+                                        term_data.tf += 1
+                                        term_set.add(temp)
+                        else:
+                            # if word not in stopwords and word != "":
+                            words_after_processing += 1
+                            if term_dict.get(word) == None:
+                                term_dict[word] = TermData(word, 0, 0)
+                            term_data = term_dict[word]
+                            term_data.tf += 1
+                            term_set.add(word)
                 
                 for term in term_set:
                     term_data = term_dict[term]
@@ -149,6 +147,22 @@ def findTopKFreqencyWords(k):
         k -= 1
     return top_k_dict
 
+def outputToCSV(top_k_dict):
+    with open('test.csv', mode='w') as test_csv:
+        csv_writer = csv.writer(test_csv, delimiter = ',', quotechar = '"', quoting = csv.QUOTE_MINIMAL)
+        csv_writer.writerow(['Term','Tf','Tf(weight)','df','IDF','tf*idf','p(term)'])
+        for term, term_data in top_k_dict.items():
+            tf = term_data.tf
+            tf_weight = 1 + math.log(tf)
+            tf_weight_text = "{:.3f}".format(tf_weight)
+            df = term_data.df
+            idf = math.log(files / df)
+            idf_text = "{:.3f}".format(idf)
+            tf_idf_text = "{:.3f}".format(tf * idf)
+            p_term = (tf / words_before_processing)
+            p_term = "{:.3f}".format(p_term)
+            csv_writer.writerow([term, tf, tf_weight_text, df, idf_text, tf_idf_text, p_term])
+
 """
 Main funciton
 """
@@ -158,21 +172,22 @@ def main():
     checkDirExist(transcripts_dir)
     buildDictionary(transcripts_dir, stopwords)
 
-    print ("The number of word tokens in the database (before: " + str(words_before_processing) +  " words, after text processing: " +str(words_after_processing) + " words.)")
+    print ("The number of word tokens in the database (before: " + str(words_before_processing) +  " words, after text processing: " + str(words_after_processing) + " words.)")
     print ("The number of unique words in the database: " + str(len(term_dict)))
     only_occur_once = findOnlyOccurOnceWord()
     print ("The number of words that occur only once in the database " + str(only_occur_once))
     print ("The average number of word tokens per document: " + str(words_before_processing / files))
 
     top_k_dict = findTopKFreqencyWords(30)
+    outputToCSV(top_k_dict)
     print("For 30 most frequent words in the database:")
-    print('Term\tTf\tTf(weight)\tdf\tIDF\ttf*idf\tp(term)%')
+    print('Term\tTf\tTf(weight)\tdf\tIDF\ttf*idf\tp(term)')
     for term, term_data in top_k_dict.items():
         tf = term_data.tf
         tf_weight = 1 + math.log(tf)
         df = term_data.df
         idf = math.log(files / df)
-        p_term = (tf / words_before_processing) * 100
+        p_term = (tf / words_before_processing)
         print("%s\t%s\t%.2f\t\t%s\t%.2f\t%.2f\t%.3f" % (term, tf, tf_weight, df, idf, tf * idf, p_term))
 
 if __name__ == "__main__":
