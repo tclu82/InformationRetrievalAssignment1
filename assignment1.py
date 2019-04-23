@@ -18,6 +18,7 @@ import unicodedata
 from sys import maxsize
 import math
 import re
+import csv
 
 # constants and gloabl variable
 stopwords_filename = "stopwords.txt"
@@ -146,6 +147,22 @@ def findTopKFreqencyWords(k):
         k -= 1
     return top_k_dict
 
+def outputToCSV(top_k_dict):
+    with open('test.csv', mode='w') as test_csv:
+        csv_writer = csv.writer(test_csv, delimiter = ',', quotechar = '"', quoting = csv.QUOTE_MINIMAL)
+        csv_writer.writerow(['Term','Tf','Tf(weight)','df','IDF','tf*idf','p(term)'])
+        for term, term_data in top_k_dict.items():
+            tf = term_data.tf
+            tf_weight = 1 + math.log(tf)
+            tf_weight_text = "{:.3f}".format(tf_weight)
+            df = term_data.df
+            idf = math.log(files / df)
+            idf_text = "{:.3f}".format(idf)
+            tf_idf_text = "{:.3f}".format(tf * idf)
+            p_term = (tf / words_before_processing)
+            p_term = "{:.3f}".format(p_term)
+            csv_writer.writerow([term, tf, tf_weight_text, df, idf_text, tf_idf_text, p_term])
+
 """
 Main funciton
 """
@@ -162,6 +179,7 @@ def main():
     print ("The average number of word tokens per document: " + str(words_before_processing / files))
 
     top_k_dict = findTopKFreqencyWords(30)
+    outputToCSV(top_k_dict)
     print("For 30 most frequent words in the database:")
     print('Term\tTf\tTf(weight)\tdf\tIDF\ttf*idf\tp(term)')
     for term, term_data in top_k_dict.items():
