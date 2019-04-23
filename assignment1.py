@@ -5,7 +5,7 @@
 # description     :TCSS 554 Information retrieval and Search assignment 1 
 # author          :Zac Lu
 # date            :20190421
-# version         :0.1
+# version         :1.0
 #
 # usage           :python assignment1.py
 #
@@ -166,13 +166,14 @@ def main():
 
     top_k_dict = findTopKFreqencyWords(30)
     print("For 30 most frequent words in the database:")
-    print('Term\tTf\tTf(weight)\tdf\tIDF\ttf*idf\tp(term)')
+    print('Term\tTf\tTf(weight)\tdf\tIDF\ttf*idf\tp(term)%')
     for term, term_data in top_k_dict.items():
         tf = term_data.tf
         tf_weight = 1 + math.log(tf)
         df = term_data.df
         idf = math.log(files / df)
-        print("%s\t%s\t%.2f\t\t%s\t%.2f\t%.2f\t%s" % (term, tf, tf_weight, df, idf, tf * idf, 10))
+        p_term = (tf / words_before_processing) * 100
+        print("%s\t%s\t%.2f\t\t%s\t%.2f\t%.2f\t%.3f" % (term, tf, tf_weight, df, idf, tf * idf, p_term))
 
 if __name__ == "__main__":
     main()
