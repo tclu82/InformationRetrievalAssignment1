@@ -154,13 +154,13 @@ def outputToCSV(top_k_dict):
         for term, term_data in top_k_dict.items():
             tf = term_data.tf
             tf_weight = 1 + math.log(tf)
-            tf_weight_text = "{:.3f}".format(tf_weight)
+            tf_weight_text = "{:.4f}".format(tf_weight)
             df = term_data.df
             idf = math.log(files / df)
-            idf_text = "{:.3f}".format(idf)
-            tf_idf_text = "{:.3f}".format(tf * idf)
+            idf_text = "{:.4f}".format(idf)
+            tf_idf_text = "{:.4f}".format(tf * idf)
             p_term = (tf / words_before_processing)
-            p_term = "{:.3f}".format(p_term)
+            p_term = "{:.4f}".format(p_term)
             csv_writer.writerow([term, tf, tf_weight_text, df, idf_text, tf_idf_text, p_term])
 
 """
@@ -188,7 +188,7 @@ def main():
         df = term_data.df
         idf = math.log(files / df)
         p_term = (tf / words_before_processing)
-        print("%s\t%s\t%.2f\t\t%s\t%.2f\t%.2f\t%.3f" % (term, tf, tf_weight, df, idf, tf * idf, p_term))
+        print("%s\t%s\t%.4f\t\t%s\t%.4f\t%.4f\t%.4f" % (term, tf, tf_weight, df, idf, tf * idf, p_term))
 
 if __name__ == "__main__":
     main()
