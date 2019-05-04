@@ -2,7 +2,7 @@
 
 # ======================================================================================
 # title           :assighment1.py
-# description     :TCSS 554 Information retrieval and Search assignment 1 
+# description     :TCSS 554 Information retrieval and Search assignment 1
 # author          :Zac Lu
 # date            :20190421
 # version         :1.0
@@ -24,7 +24,6 @@ import csv
 stopwords_filename = "stopwords.txt"
 transcripts_dir = "./transcripts/"
 term_dict = {}
-check_set = {'-', '\'', ',', '.'}
 files = 0
 words_before_processing = 0
 words_after_processing = 0
@@ -99,7 +98,7 @@ def buildDictionary(dir, stopwords):
                     if word == "--":
                         continue
                     word = word.lower()
-                    
+
                     if word not in stopwords:
                         # Use regex to check if word contains [. , ']
                         match = re.match("\w+[.,\']", word)
@@ -121,7 +120,7 @@ def buildDictionary(dir, stopwords):
                             term_data = term_dict[word]
                             term_data.tf += 1
                             term_set.add(word)
-                
+
                 for term in term_set:
                     term_data = term_dict[term]
                     term_data.df += 1
@@ -140,7 +139,7 @@ def findTopKFreqencyWords(k):
         for term, term_data in term_dict.items():
             if term_data.tf > freq:
                 freq = term_data.tf
-                word = term   
+                word = term
         top_k_dict[word] = term_dict[word]
         term_dict.pop(word, None)
         freq = 0
@@ -154,13 +153,13 @@ def outputToCSV(top_k_dict):
         for term, term_data in top_k_dict.items():
             tf = term_data.tf
             tf_weight = 1 + math.log(tf)
-            tf_weight_text = "{:.3f}".format(tf_weight)
+            tf_weight_text = "{:.4f}".format(tf_weight)
             df = term_data.df
             idf = math.log(files / df)
-            idf_text = "{:.3f}".format(idf)
-            tf_idf_text = "{:.3f}".format(tf * idf)
+            idf_text = "{:.4f}".format(idf)
+            tf_idf_text = "{:.4f}".format(tf * idf)
             p_term = (tf / words_before_processing)
-            p_term = "{:.3f}".format(p_term)
+            p_term = "{:.4f}".format(p_term)
             csv_writer.writerow([term, tf, tf_weight_text, df, idf_text, tf_idf_text, p_term])
 
 """
@@ -188,7 +187,7 @@ def main():
         df = term_data.df
         idf = math.log(files / df)
         p_term = (tf / words_before_processing)
-        print("%s\t%s\t%.2f\t\t%s\t%.2f\t%.2f\t%.3f" % (term, tf, tf_weight, df, idf, tf * idf, p_term))
+        print("%s\t%s\t%.4f\t\t%s\t%.4f\t%.4f\t%.4f" % (term, tf, tf_weight, df, idf, tf * idf, p_term))
 
 if __name__ == "__main__":
     main()
