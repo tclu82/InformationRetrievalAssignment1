@@ -2,7 +2,7 @@
 
 # ======================================================================================
 # title           :assighment1.py
-# description     :TCSS 554 Information retrieval and Search assignment 1 
+# description     :TCSS 554 Information retrieval and Search assignment 1
 # author          :Zac Lu
 # date            :20190421
 # version         :1.0
@@ -24,7 +24,6 @@ import csv
 stopwords_filename = "stopwords.txt"
 transcripts_dir = "./transcripts/"
 term_dict = {}
-check_set = {'-', '\'', ',', '.'}
 files = 0
 words_before_processing = 0
 words_after_processing = 0
@@ -99,7 +98,7 @@ def buildDictionary(dir, stopwords):
                     if word == "--":
                         continue
                     word = word.lower()
-                    
+
                     if word not in stopwords:
                         # Use regex to check if word contains [. , ']
                         match = re.match("\w+[.,\']", word)
@@ -121,7 +120,7 @@ def buildDictionary(dir, stopwords):
                             term_data = term_dict[word]
                             term_data.tf += 1
                             term_set.add(word)
-                
+
                 for term in term_set:
                     term_data = term_dict[term]
                     term_data.df += 1
@@ -140,7 +139,7 @@ def findTopKFreqencyWords(k):
         for term, term_data in term_dict.items():
             if term_data.tf > freq:
                 freq = term_data.tf
-                word = term   
+                word = term
         top_k_dict[word] = term_dict[word]
         term_dict.pop(word, None)
         freq = 0
